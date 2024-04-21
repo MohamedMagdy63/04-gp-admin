@@ -1,13 +1,34 @@
 "use client"
+import { gql, useApolloClient, useMutation } from '@apollo/client';
 // AddEmployee.js
 import React, { useState } from 'react';
+import { SignUp } from '../../gql/Mutation'
+import { useRouter } from 'next/router';
 
 function AddEmployee() {
+  const [ values, setValues ] = useState()
+  const router = useRouter()
+  const client = useApolloClient()
+  const [signUp,{loading,error}] = useMutation(SignUp,
+    {
+      onCompleted:(data)=>{
+        localStorage.setItem("Token",data.signUp)
+        client.writeQuery({query:gql` {
+          isLoggedIn @client }
+          `,data: { isLoggedIn: true }})
+        router.push('/',{})
+      }
+    })
+    
   return (
     <div className='text-white'>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" 
+          onSubmit={(e)=>{
+            e.preventDefault()
+            signUp({variables:values})
+          }}>
             <div>
                 <label htmlFor="name" className="block text-sm font-medium leading-6 text-white">
                   Name
@@ -20,6 +41,12 @@ function AddEmployee() {
                     placeholder='Name'
                     required
                     className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inse ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    onChange={(e)=>{
+                      setValues({
+                        ...values,
+                        [e.target.name]: e.target.value
+                      })
+                    }}
                   />
                 </div>
             </div>
@@ -36,6 +63,12 @@ function AddEmployee() {
                     required
                     placeholder='Phone Number'
                     className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    onChange={(e)=>{
+                      setValues({
+                        ...values,
+                        [e.target.name]: e.target.value
+                      })
+                    }}
                   />
                 </div>
             </div>
@@ -46,11 +79,17 @@ function AddEmployee() {
                 <div className="mt-2">
                   <input
                     id="Address"
-                    name="Address"
+                    name="address"
                     type="text"
                     placeholder='Address'
                     required
                     className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    onChange={(e)=>{
+                      setValues({
+                        ...values,
+                        [e.target.name]: e.target.value
+                      })
+                    }}
                   />
                 </div>
             </div>
@@ -66,6 +105,12 @@ function AddEmployee() {
                     placeholder='Age'
                     required
                     className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    onChange={(e)=>{
+                      setValues({
+                        ...values,
+                        [e.target.name]: parseInt(e.target.value)
+                      })
+                    }}
                   />
                 </div>
             </div>
@@ -74,13 +119,19 @@ function AddEmployee() {
                   Role
                 </label>
                 <div className="mt-2">
-                <select id="roles" name="roles"
+                <select id="roles" name="role"
                   className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   required
+                  onChange={(e)=>{
+                    setValues({
+                      ...values,
+                      [e.target.name]: parseInt(e.target.value)
+                    })
+                  }}
                 >
                   <option value="">Choose the role</option>
-                  <option value="manger">Manger</option>
-                  <option value="employee">Employee</option>
+                  <option value="0">Manger</option>
+                  <option value="1">Employee</option>
                 </select>
                 </div>
             </div>
@@ -96,6 +147,12 @@ function AddEmployee() {
                   placeholder='Username'
                   required
                   className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  onChange={(e)=>{
+                    setValues({
+                      ...values,
+                      [e.target.name]: e.target.value
+                    })
+                  }}
                 />
               </div>
             </div>
@@ -114,6 +171,12 @@ function AddEmployee() {
                   type="password"
                   required
                   className="block w-full outline-none p-2 rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  onChange={(e)=>{
+                    setValues({
+                      ...values,
+                      [e.target.name]: e.target.value
+                    })
+                  }}
                 />
               </div>
             </div>
