@@ -1,3 +1,4 @@
+import Navbar from '@/components/Navbar';
 import React from 'react';
 
 const staticRequests = [
@@ -57,12 +58,16 @@ const DriveRequestCard = ({ request }) => {
 
 const DriveRequests = () => {
   return (
+    <>
+    <Navbar/>
     <div className="drive-requests">
       <h2 className="text-white text-2xl font-semibold mb-4 text-center">Entrance Requests</h2>
       {staticRequests.map(request => (
         <DriveRequestCard key={request.id} request={request} />
       ))}
     </div>
+    </>
+    
   );
 };
 
