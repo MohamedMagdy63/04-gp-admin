@@ -18,7 +18,29 @@ mutation Mutation(
         age: $age, 
         role: $role)
   }
-  
 `
-
-export { SignUp }
+const SignIn = gql`
+mutation SignUp(
+  $username: String!, 
+  $password: String!) {
+  signIn(
+    username: $username, 
+    password: $password)
+}
+`
+const ChengeState = gql`
+mutation ChangeOrderStatus(
+  $ordersId: ID!, 
+  $status: Int!) {
+  changeOrderStatus(
+    ordersID: $ordersId, 
+    STATUS: $status) {
+    ordersID
+    arriveTime
+    carNumber
+    carText
+    carType
+  }
+}
+`
+export { SignUp, SignIn, ChengeState }
