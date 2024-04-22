@@ -1,69 +1,90 @@
 import Navbar from '@/components/Navbar';
-import React from 'react';
+import { ChengeState } from '@/gql/Mutation';
+import { GET_ALL_REQUSETS, GET_CURRENT_USER } from '@/gql/Query';
+import { useMutation, useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 
-const staticRequests = [
-  {
-    id: 1,
-    requesterName: "John Doe",
-    carModel: "Toyota Camry",
-    pickupLocation: "123 Main St",
-    destination: "456 Elm St",
-    timestamp: "2024-04-19 10:00 AM"
-  },
-  {
-    id: 2,
-    requesterName: "Jane Smith",
-    carModel: "Honda Accord",
-    pickupLocation: "789 Oak St",
-    destination: "101 Pine St",
-    timestamp: "2024-04-19 11:00 AM"
-  }
-];
 
 const DriveRequestCard = ({ request }) => {
-  const { id, requesterName, carModel, pickupLocation, destination, timestamp } = request;
+  const [chengeState] = useMutation(ChengeState,{
+    refetchQueries:[GET_ALL_REQUSETS],
+  })
 
-  const handleApprove = () => {
+  const { ordersID, 
+          ownerName, 
+          reason, 
+          carType, 
+          arriveTime, 
+          leaveTime,
+          carNumber, 
+          carText,
+          licenseImage } = request;
+
+  const handleApprove = (ordersID,status) => {
     // Handle approve logic
-    console.log(`Request ${id} has been approved`);
+    chengeState({
+      variables:{
+        ordersId: ordersID,
+        status: status
+      }
+    })
   };
 
-  const handleDeny = () => {
+  const handleDeny = (ordersID,status) => {
     // Handle deny logic
-    console.log(`Request ${id} has been denied`);
+    chengeState({
+      variables:{
+        ordersId: ordersID,
+        status: status
+      }
+    })
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-4">
-      <h3 className="text-lg font-semibold mb-2">Request ID: {id}</h3>
-      <p className="text-gray-600">Driver Name: {requesterName}</p>
-      <p className="text-gray-600">Plate Numbers: {carModel}</p>
-      <p className="text-gray-600">Plate Letters: {pickupLocation}</p>
-      <p className="text-gray-600">Reason of entrance: {destination}</p>
-      <p className="text-gray-600">Entry Date: {timestamp}</p>
-      <p className="text-gray-600">Departure Date: {timestamp}</p>
-      <p className="text-gray-600">Entry Time: {timestamp}</p>
-      <p className="text-gray-600">Departure Time: {timestamp}</p>
-      <p className="text-gray-600">Driving License: <img></img></p>
+      <h3 className="text-lg font-semibold mb-2">Request ID: {ordersID}</h3>
+      <p className="text-gray-600">Driver Name: {ownerName}</p>
+      <p className="text-gray-600">Plate Numbers: {carNumber}</p>
+      <p className="text-gray-600">Plate Letters: {carText}</p>
+      <p className="text-gray-600">Car Type: {carType}</p>
+      <p className="text-gray-600">Reason of entrance: {reason}</p>
+      <p className="text-gray-600">Entry Date: {new Date(arriveTime).getDate()}-{new Date(arriveTime).getMonth()+1}-{new Date(arriveTime).getFullYear()}</p>
+      <p className="text-gray-600">Entry Time: {new Date(arriveTime).getHours()}:{new Date(arriveTime).getMinutes()}</p>
+      <p className="text-gray-600">Departure Date: {new Date(leaveTime).getDate()}-{new Date(leaveTime).getMonth()+1}-{new Date(leaveTime).getFullYear()}</p>
+      <p className="text-gray-600">Departure Time: {new Date(leaveTime).getHours()}:{new Date(leaveTime).getMinutes()}</p>
+      <p className="text-gray-600">Driving License: <img src={licenseImage} alt="licence" className='object-contain w-24 h-24' /></p>
 
 
 
       <div className="mt-4 flex justify-end">
-        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mr-2" onClick={handleApprove}>Approve</button>
-        <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded" onClick={handleDeny}>Deny</button>
+        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mr-2" onClick={()=>{handleApprove(ordersID,1)}}>Approve</button>
+        <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded" onClick={()=>{handleDeny(ordersID,0)}}>Deny</button>
       </div>
     </div>
   );
 };
 
 const DriveRequests = () => {
-  return (
+  const router = useRouter()
+  const { data: userData, loading: userLoading, error:userError } = useQuery(GET_CURRENT_USER,{
+    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")}
+  })
+  const {data,loading,error} = useQuery(GET_ALL_REQUSETS)
+  if(loading) return <p>Loading....</p>
+  if(error) return <p>Error! {console.error(error)}</p>
+
+  if(userLoading) return <p>Loading....</p>
+  if(userError) router.push('/login')
+  if(userData.me.role === 0) router.push('/authorized')
+
+  if(userData.me.role === 1) return (
     <>
     <Navbar/>
     <div className="drive-requests">
       <h2 className="text-white text-2xl font-semibold mb-4 text-center">Entrance Requests</h2>
-      {staticRequests.map(request => (
-        <DriveRequestCard key={request.id} request={request} />
+      {data.ordersByState.map(request => (
+        <DriveRequestCard key={request.ordersID} request={request} />
       ))}
     </div>
     </>

@@ -1,29 +1,66 @@
 "use client"
-import { gql, useApolloClient, useMutation } from '@apollo/client';
+import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
 // AddEmployee.js
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { SignUp } from '../../gql/Mutation'
 import { useRouter } from 'next/router';
+import Navbar from '@/components/Navbar';
+import { GET_CURRENT_USER } from '@/gql/Query';
+import { Alert } from '@mui/material';
 
 function AddEmployee() {
+  const { data,loading,error } = useQuery(GET_CURRENT_USER,{
+    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")}
+  })
   const [ values, setValues ] = useState()
   const router = useRouter()
   const client = useApolloClient()
-  const [signUp,{loading,error}] = useMutation(SignUp,
+  const [handleError,setHandleError] = useState(false)
+  const [handleErrorMsg,setHandleErrorMsg] = useState(null)
+  const [typeMsg,setTypeMsg] = useState(null)
+  const [signUp] = useMutation(SignUp,
     {
+      onError: (err)=>{
+        if(err.message){
+          setHandleError(true)
+          setHandleErrorMsg(err.message)
+          setTypeMsg(0)
+          setTimeout(() => {
+            setHandleError(false)
+            setHandleErrorMsg(null)
+            setTypeMsg(null)
+          }, 5000);
+        }
+      },
       onCompleted:(data)=>{
-        localStorage.setItem("Token",data.signUp)
-        client.writeQuery({query:gql` {
-          isLoggedIn @client }
-          `,data: { isLoggedIn: true }})
-        router.push('/',{})
+        router.push({pathname: '/addEmployee' ,query: { successMsg: 'New Employee added' }},'/addEmployee')
       }
     })
     
-  return (
+  useEffect(()=>{
+    (router.query.successMsg) &&
+      setHandleError(true)
+      setHandleErrorMsg(router.query.successMsg)
+      setTypeMsg(1)
+      setTimeout(() => {
+        setHandleError(false)
+        setHandleErrorMsg(null)
+        setTypeMsg(null)
+      }, 5000);
+  },[router.query.successMsg])
+  if(loading) return <p>loading</p>
+  
+  if(error) router.replace('/login')
+  
+  if(data && data.me.role === 0) return (
     <>
     <Navbar/>
     <div className='text-white'>
+      {
+        handleError ? 
+          <Alert severity={`${typeMsg === 0 ? "error" : "success"}`}>{handleErrorMsg}</Alert>
+        :''
+      }
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" 
@@ -198,6 +235,8 @@ function AddEmployee() {
     </>
     
   );
+
+  if(data && data.me.role === 1) router.replace('/authorized')
 }
 
 export default AddEmployee;

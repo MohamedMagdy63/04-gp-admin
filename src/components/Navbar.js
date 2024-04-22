@@ -12,12 +12,19 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import GarageIcon from '@mui/icons-material/Garage';
 import Link from 'next/link';
+import { useQuery } from '@apollo/client';
+import { GET_CURRENT_USER } from '@/gql/Query';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 const pages = ['Add Employee', 'Manage Requests'];
 const pagesLink = ['addEmployee', 'manageRequests'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Navbar() {
+  const { data } = useQuery(GET_CURRENT_USER,{
+    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")}
+  })
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -40,24 +47,30 @@ function Navbar() {
     <AppBar position="static">
       <Container maxWidth="xl" className='bg-[#19556b]'>
         <Toolbar disableGutters>
-          <GarageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            GP
-          </Typography>
+          {
+            data && data.me.role === 0 ? 
+            <>
+              <GarageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+              <Typography
+                variant="h6"
+                noWrap
+                component="a"
+                href="/"
+                sx={{
+                  mr: 2,
+                  display: { xs: 'none', md: 'flex' },
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  letterSpacing: '.3rem',
+                  color: 'inherit',
+                  textDecoration: 'none',
+                }}
+              >
+                GP
+              </Typography>
+            </>
+            :''
+          }
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -88,47 +101,70 @@ function Navbar() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page,index) => (
-
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Link href={`/${pagesLink[index]}`}>
-                    <Typography textAlign="center">{page}</Typography>
+              {
+                data && data.me.role === 0 ?
+                <MenuItem onClick={handleCloseNavMenu}>
+                  <Link href={`/${pagesLink[0]}`}>
+                    <Typography textAlign="center">{pages[0]}</Typography>
                   </Link>
                 </MenuItem>
-              ))}
+                :
+                <MenuItem onClick={handleCloseNavMenu}>
+                  <Link href={`/${pagesLink[1]}`}>
+                    <Typography textAlign="center">{pages[1]}</Typography>
+                  </Link>
+                </MenuItem>
+              }
             </Menu>
           </Box>
-          <GarageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            GP
-          </Typography>
+          {
+            data && data.me.role === 0 ? 
+              <>
+                <GarageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                <Typography
+                  variant="h5"
+                  noWrap
+                  component="a"
+                  href="/"
+                  sx={{
+                    mr: 2,
+                    display: { xs: 'flex', md: 'none' },
+                    flexGrow: 1,
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    letterSpacing: '.3rem',
+                    color: 'inherit',
+                    textDecoration: 'none',
+                  }}
+                >
+                  GP
+                </Typography>
+              </>
+              :""
+          }
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page , index) => (
-                <Link href={`/${pagesLink[index]}`}>
-                    <Button
-                        key={page}
-                        onClick={handleCloseNavMenu}
-                        sx={{ my: 2, color: 'white', display: 'block' }}
-                    >
-                        {page}
-                    </Button>
-                </Link>
-            ))}
+          {
+            data && data.me.role === 0 ?
+              <Link href={`/${pagesLink[0]}`}>
+                  <Button
+                      key={pages[0]}
+                      onClick={handleCloseNavMenu}
+                      sx={{ my: 2, color: 'white', display: 'block' }}
+                  >
+                      {pages[0]}
+                  </Button>
+              </Link>
+            :
+            <Link href={`/${pagesLink[1]}`}>
+                <Button
+                    key={pages[1]}
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                    {pages[1]}
+                </Button>
+            </Link>
+          }
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
