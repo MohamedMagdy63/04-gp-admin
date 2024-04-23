@@ -52,13 +52,13 @@ const columns = [
       return (
         <>
           {params.value === null && params.row.expired === 1 &&
-            <p>Holded</p>}
+            <p className='bg-yellow-700 text-white text-center'>Holded</p>}
           {params.value === 1 &&
-            <p>Accepted</p>}
+            <p className='bg-green-700 text-white text-center'>Accepted</p>}
           {params.value === 0 &&
-            <p>Refused</p>}
+            <p className='bg-red-700 text-white text-center'>Refused</p>}
           {params.value === null && params.row.expired === 0 &&
-            <p>pandding</p>}
+            <p className='bg-orange-700 text-white text-center'>pandding</p>}
         </>
       )
     } 
@@ -69,7 +69,7 @@ const columns = [
     width: 130,
     renderCell: (params)=>{
       return params.row.employeesID && 
-               <p>{params.row.employeesID[0].name}</p>
+      <p>{params.row.employeesID[0].name}</p>
     } 
   },
   { 
