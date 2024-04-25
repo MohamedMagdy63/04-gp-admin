@@ -19,7 +19,8 @@ const DriveRequestCard = ({ request }) => {
           leaveTime,
           carNumber, 
           carText,
-          licenseImage } = request;
+          licenseImage,
+          email } = request;
 
   const handleApprove = (ordersID,status) => {
     // Handle approve logic
@@ -45,6 +46,7 @@ const DriveRequestCard = ({ request }) => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-4">
       <h3 className="text-lg font-semibold mb-2">Request ID: {ordersID}</h3>
       <p className="text-gray-600">Driver Name: {ownerName}</p>
+      <p className="text-gray-600">Driver Email: {email}</p>
       <p className="text-gray-600">Plate Numbers: {carNumber}</p>
       <p className="text-gray-600">Plate Letters: {carText}</p>
       <p className="text-gray-600">Car Type: {carType}</p>
@@ -53,7 +55,7 @@ const DriveRequestCard = ({ request }) => {
       <p className="text-gray-600">Entry Time: {new Date(arriveTime).getHours()}:{new Date(arriveTime).getMinutes()}</p>
       <p className="text-gray-600">Departure Date: {new Date(leaveTime).getDate()}-{new Date(leaveTime).getMonth()+1}-{new Date(leaveTime).getFullYear()}</p>
       <p className="text-gray-600">Departure Time: {new Date(leaveTime).getHours()}:{new Date(leaveTime).getMinutes()}</p>
-      <p className="text-gray-600">Driving License: <img src={licenseImage} alt="licence" className='object-contain w-24 h-24' /></p>
+      <p className="text-gray-600">Driving License: <a href={process.env.NEXT_APP_IMAGE_URL + licenseImage} target='_blank'><img src={process.env.NEXT_APP_IMAGE_URL + licenseImage} alt="licence" className='object-contain w-[30%] h-[30%]' /></a></p>
 
 
 
@@ -68,7 +70,8 @@ const DriveRequestCard = ({ request }) => {
 const DriveRequests = () => {
   const router = useRouter()
   const { data: userData, loading: userLoading, error:userError } = useQuery(GET_CURRENT_USER,{
-    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")}
+    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")},
+    pollInterval:500
   })
   const {data,loading,error} = useQuery(GET_ALL_REQUSETS)
   if(loading) return <p>Loading....</p>
@@ -76,9 +79,9 @@ const DriveRequests = () => {
 
   if(userLoading) return <p>Loading....</p>
   if(userError) router.push('/login')
-  if(userData.me.role === 0) router.push('/authorized')
+  if(userData && userData.me.role === 0) router.push('/authorized')
 
-  if(userData.me.role === 1) return (
+  if(userData && userData.me.role === 1) return (
     <>
     <Navbar/>
     <div className="drive-requests">

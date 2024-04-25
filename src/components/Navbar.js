@@ -12,10 +12,11 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import GarageIcon from '@mui/icons-material/Garage';
 import Link from 'next/link';
-import { useQuery } from '@apollo/client';
+import { gql, useApolloClient, useQuery } from '@apollo/client';
 import { GET_CURRENT_USER } from '@/gql/Query';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const pages = ['Add Employee', 'Manage Requests'];
 const pagesLink = ['addEmployee', 'manageRequests'];
@@ -27,6 +28,8 @@ function Navbar() {
   })
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const router = useRouter()
+  const client = useApolloClient()
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -41,6 +44,18 @@ function Navbar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+  const handleLogOut = () => {
+    localStorage.removeItem("Token")
+      client.writeQuery({
+        query: gql`
+            {
+                isLoggedIn @client
+            }
+        `,
+        data:{ isLoggedIn: false }
+      })
+      router.push('/')
   };
 
   return (
@@ -115,6 +130,10 @@ function Navbar() {
                   </Link>
                 </MenuItem>
               }
+              {
+                data &&
+                <button className='w-full' onClick={()=>{handleLogOut()}}> Logout </button>
+              }
             </Menu>
           </Box>
           {
@@ -164,6 +183,10 @@ function Navbar() {
                     {pages[1]}
                 </Button>
             </Link>
+          }
+          {
+            data &&
+            <button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>{handleLogOut()}}> Logout </button>
           }
           </Box>
 
