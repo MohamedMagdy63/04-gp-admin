@@ -33,6 +33,7 @@ query Query {
     carNumber
     STATUS
     arriveTime
+    email
     employeesID {
       username
       role
@@ -62,6 +63,7 @@ query Query {
     ordersID
     ownerName
     reason
+    email
     employeesID {
       username
       role

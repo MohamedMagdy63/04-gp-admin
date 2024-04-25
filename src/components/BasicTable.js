@@ -7,6 +7,7 @@ import { GET_ALL_ORDER } from '@/gql/Query';
 const columns = [
   { field: 'ordersID', headerName: 'ID', width: 70 },
   { field: 'ownerName', headerName: 'Driver Name', width: 130 },
+  { field: 'email', headerName: 'Driver Email', width: 220 },
   { field: 'carNumber', headerName: 'Plate Numbers', width: 130 },
   { field: 'carText', headerName: 'Plate Letters', width: 130 },
   { field: 'arriveTime', headerName: 'Entry Date', width: 130,
@@ -39,10 +40,13 @@ const columns = [
     renderCell: (params)=>{
       console.log(params.value)
       return (
-      <img 
-      src={params.value} 
-      alt="Licence"  
-      className='object-contain w-10 h-10'/> )
+        <a href={process.env.NEXT_APP_IMAGE_URL + params.value} target='_blank'>
+          <img 
+          src={process.env.NEXT_APP_IMAGE_URL + params.value} 
+          alt="Licence"  
+          className='object-contain w-24 h-24'/> 
+        </a>
+      )
     }
   },
   { field: 'reason', headerName: 'Reason of entry', width: 130 },
@@ -84,7 +88,9 @@ const columns = [
 ];
 
 export default function DataTable() {
-  const {data,loading,error} = useQuery(GET_ALL_ORDER)
+  const {data,loading,error} = useQuery(GET_ALL_ORDER,{
+    pollInterval:500
+  })
   return (
     <div style={{ height: 400, width: '100%' }} className='bg-[#B3C8CF]'>
       {
