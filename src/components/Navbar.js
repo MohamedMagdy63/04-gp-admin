@@ -132,7 +132,7 @@ function Navbar() {
               }
               {
                 data &&
-                <button className='w-full' onClick={()=>{handleLogOut()}}> Logout </button>
+                <button className='w-full ' onClick={()=>{handleLogOut()}}> Logout </button>
               }
             </Menu>
           </Box>
@@ -186,7 +186,7 @@ function Navbar() {
           }
           {
             data &&
-            <button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>{handleLogOut()}}> Logout </button>
+            <button className='text-right w-[80%]' sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>{handleLogOut()}}> Logout </button>
           }
           </Box>
 
