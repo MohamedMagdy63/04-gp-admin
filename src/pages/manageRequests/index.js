@@ -70,10 +70,11 @@ const DriveRequestCard = ({ request }) => {
 const DriveRequests = () => {
   const router = useRouter()
   const { data: userData, loading: userLoading, error:userError } = useQuery(GET_CURRENT_USER,{
-    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")},
+    variables:{employeesId: typeof window !== "undefined" && window.localStorage.getItem("Token")}
+  })
+  const {data,loading,error} = useQuery(GET_ALL_REQUSETS,{
     pollInterval:500
   })
-  const {data,loading,error} = useQuery(GET_ALL_REQUSETS)
   if(loading) return <p>Loading....</p>
   if(error) return <p>Error! {console.error(error)}</p>
 

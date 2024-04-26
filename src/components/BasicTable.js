@@ -38,7 +38,6 @@ const columns = [
   },
   { field: 'licenseImage', headerName: 'Driver License', width: 130,
     renderCell: (params)=>{
-      console.log(params.value)
       return (
         <a href={process.env.NEXT_APP_IMAGE_URL + params.value} target='_blank'>
           <img 
@@ -89,7 +88,7 @@ const columns = [
 
 export default function DataTable() {
   const {data,loading,error} = useQuery(GET_ALL_ORDER,{
-    pollInterval:500
+    pollInterval: 500,
   })
   return (
     <div style={{ height: 400, width: '100%' }} className='bg-[#B3C8CF]'>
